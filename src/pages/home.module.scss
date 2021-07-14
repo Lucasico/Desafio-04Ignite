@@ -1,1 +1,63 @@
-// TODO
+.content {
+  font-family: "Inter", sans-serif;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 3rem;
+  cursor: pointer;
+
+  h1 {
+    transition: 0.5s;
+    color: var(--heading);
+  }
+
+  > span {
+    display: block;
+    color: var(--heading);
+    padding-top: 8px;
+    padding-bottom: 24px;
+  }
+
+  &:hover {
+    h1 {
+      color: var(--highlight);
+    }
+  }
+}
+
+.contentAutorInfo {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.sectionPublicationDate {
+  margin-right: 1.625rem;
+}
+
+.sectionPublicationAutor,
+.sectionPublicationDate {
+  img {
+    vertical-align: middle;
+    width: 20px;
+    height: 20px;
+  }
+
+  time {
+    font-size: 14px;
+    color: var(--info);
+    padding-left: 8px;
+  }
+
+  span {
+    font-size: 14px;
+    color: var(--info);
+    padding-left: 8px;
+  }
+}
+
+.paginationItem {
+  font-weight: 600;
+  font-size: 18px;
+  font-family: "Inter", sans-serif;
+  color: var(--highlight);
+}
