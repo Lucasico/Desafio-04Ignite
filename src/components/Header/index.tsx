@@ -1,9 +1,9 @@
-import Image from 'next/image';
-import Link from 'next/link';
-import styledGlobal from '../../styles/common.module.scss';
-import styledLocal from './header.module.scss';
+import Image from "next/image";
+import Link from "next/link";
+import styledGlobal from "../../styles/common.module.scss";
+import styledLocal from "./header.module.scss";
 
-export default function Header() {
+export default function Header(): JSX.Element {
   // TODO
   return (
     <div className={styledGlobal.container}>

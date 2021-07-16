@@ -1,11 +1,12 @@
 // https://www.youtube.com/watch?v=HKPWKoxozRk&ab_channel=GBDev
 
 /* eslint-disable react/button-has-type */
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { GetStaticProps } from "next";
 import Link from "next/link";
 import { format } from "date-fns";
-import pt from "date-fns/locale/pt-BR";
+import { ptBR } from "date-fns/locale";
+import Prismic from "@prismicio/client";
 import PaginationButton from "../components/Pagination";
 import { getPrismicClient } from "../services/prismic";
 import styledGlobal from "../styles/common.module.scss";
@@ -30,19 +31,43 @@ interface HomeProps {
   postsPagination: PostPagination;
 }
 
-// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-export default function Home({ postsPagination }: HomeProps) {
-  const [results, setResults] = useState<Post[]>(() => postsPagination.results);
-  const { next_page } = postsPagination;
+function formmatedValuesPost(posts: Post[]): Post[] {
+  const returnValues = posts.map((post) => {
+    return {
+      ...post,
+      first_publication_date: format(
+        new Date(post.first_publication_date),
+        "dd MMM yyyy",
+        {
+          locale: ptBR,
+        }
+      ),
+    };
+  });
 
-  async function handlePagination(): void {
-    const currentPosts = [...results];
-    console.log("next_page", next_page);
-    const data = await fetch(
-      "data https://desafioignite04.cdn.prismic.io/api/v2/documents/sear…ications.title%2Cpublications.subtitle%2Cpublications.author index.tsx:42:12"
-    ).then((response) => console.log("response", response));
+  return returnValues;
+}
 
-    console.log("data", data);
+export default function Home({ postsPagination }: HomeProps): JSX.Element {
+  const formattedResults = formmatedValuesPost(postsPagination.results);
+  const [results, setResults] = useState<Post[]>(formattedResults);
+  const [nextPage, setNextPage] = useState<string | null>(
+    postsPagination.next_page
+  );
+
+  async function handleNewPosts(): Promise<void> {
+    if (nextPage !== null) {
+      const currentPosts = [...results];
+      const responseData = await fetch(`${nextPage}`).then((response) =>
+        response.json()
+      );
+      const newNextPage = responseData.next_page;
+      const newResults = responseData.results;
+      const formattedNewResults = formmatedValuesPost(newResults);
+
+      setNextPage(newNextPage);
+      setResults([...currentPosts, ...formattedNewResults]);
+    }
   }
 
   return (
@@ -73,40 +98,44 @@ export default function Home({ postsPagination }: HomeProps) {
         </Link>
       ))}
 
-      <PaginationButton handlePagination={handlePagination} />
+      {nextPage && <PaginationButton handlePagination={handleNewPosts} />}
     </>
   );
 }
 
 export const getStaticProps: GetStaticProps = async () => {
   const prismic = getPrismicClient();
-  const postsResponse = await prismic.query("", {
-    fetch: [
-      "publications.title",
-      "publications.subtitle",
-      "publications.author",
-    ],
-    pageSize: 1,
-  });
+
+  const postsResponse = await prismic.query(
+    [Prismic.Predicates.at("document.type", "publications")],
+    {
+      fetch: [
+        "publications.title",
+        "publications.subtitle",
+        "publications.author",
+      ],
+      pageSize: 1,
+    }
+  );
 
   const { next_page } = postsResponse;
   const { results } = postsResponse;
 
-  const formatedData = results.map((res) => {
+  const publications = results.map((publication) => {
     return {
-      uid: res.uid,
-      first_publication_date: format(
-        new Date(res.first_publication_date),
-        "dd MMM yyyy",
-        { locale: pt }
-      ),
-      data: res.data,
+      uid: publication.uid,
+      first_publication_date: publication.first_publication_date,
+      data: {
+        title: publication.data.title,
+        subtitle: publication.data.subtitle,
+        author: publication.data.author,
+      },
     };
   });
 
   const postsPagination = {
     next_page,
-    results: formatedData,
+    results: publications,
   };
 
   return {

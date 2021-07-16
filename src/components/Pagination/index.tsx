@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/explicit-function-return-type */
-/* eslint-disable react/button-has-type */
 import styledGlobal from "../../styles/common.module.scss";
 import styledLocal from "./pagination.module.scss";
 
@@ -7,7 +5,9 @@ type PropsPagination = {
   handlePagination: () => void;
 };
 
-export default function Pagination({ handlePagination }: PropsPagination) {
+export default function Pagination({
+  handlePagination,
+}: PropsPagination): JSX.Element {
   return (
     <div className={styledGlobal.container}>
       <button
