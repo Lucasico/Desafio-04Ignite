@@ -1,5 +1,3 @@
-// https://www.youtube.com/watch?v=HKPWKoxozRk&ab_channel=GBDev
-
 /* eslint-disable react/button-has-type */
 import { useState } from "react";
 import { GetStaticProps } from "next";
@@ -7,6 +5,7 @@ import Link from "next/link";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import Prismic from "@prismicio/client";
+import Head from "next/head";
 import PaginationButton from "../components/Pagination";
 import { getPrismicClient } from "../services/prismic";
 import styledGlobal from "../styles/common.module.scss";
@@ -72,6 +71,9 @@ export default function Home({ postsPagination }: HomeProps): JSX.Element {
 
   return (
     <>
+      <Head>
+        <title>Spacetraveling</title>
+      </Head>
       {results.map((res: Post) => (
         <Link href={`/post/${res.uid}`} key={res.uid}>
           <main className={styledGlobal.container}>

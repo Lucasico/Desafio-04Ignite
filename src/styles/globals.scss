@@ -38,7 +38,10 @@ button {
 }
 
 a {
+  font-weight: bold;
+  color: var(--heading);
   cursor: pointer;
+  text-decoration: none;
 }
 
 button {
