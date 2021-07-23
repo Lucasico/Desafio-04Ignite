@@ -14,6 +14,7 @@ import { getPrismicClient } from "../../services/prismic";
 import styledGlobal from "../../styles/common.module.scss";
 import styledLocal from "./post.module.scss";
 import Comments from "../../components/Comments";
+import Navigation from "../../components/Navigation";
 
 interface Post {
   first_publication_date: string | null;
@@ -61,9 +62,6 @@ function formatPostUpdateDate(date: string): string {
 
   return finalFormmattedDate;
 }
-// https://www.youtube.com/watch?v=AwYyC6Uh3iI&ab_channel=GBDev
-// paginação de resultados
-// https://prismic.io/docs/technologies/order-your-results-reactjs
 export default function Post({
   post,
   prevPost,
@@ -145,24 +143,7 @@ export default function Post({
             );
           })}
           <Comments />
-          <div className={styledLocal.ContentPreviousAndNextPost}>
-            {prevPost[0]?.uid && (
-              <Link href={`/post/${prevPost[0].uid}`}>
-                <button type="button">
-                  <b>{prevPost[0].data.title}</b>
-                  <span>Post anterior</span>
-                </button>
-              </Link>
-            )}
-            {afterPost[0]?.uid && (
-              <Link href={`/post/${afterPost[0].uid}`}>
-                <button type="button">
-                  <b>{afterPost[0].data.title}</b>
-                  <span>Próximo Post</span>
-                </button>
-              </Link>
-            )}
-          </div>
+          <Navigation prevPost={prevPost} afterPost={afterPost} />
         </div>
       </div>
     </>

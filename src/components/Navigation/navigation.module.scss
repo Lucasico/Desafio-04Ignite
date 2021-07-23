@@ -1,0 +1,36 @@
+.ContentPreviousAndNextPost {
+  display: flex;
+  justify-content: space-between;
+  max-width: 700px;
+  height: 156px;
+  flex: wrap;
+  color: var(--heading);
+  border-top: 0.5px solid #656282;
+  margin-top: 1.5rem;
+
+  button {
+    margin-top: 1rem;
+    border: 0;
+    background: none;
+    height: 76px;
+    text-align: left;
+    transition: 0.5s;
+    &:hover {
+      border-radius: 0.5rem;
+      border: 0.5px solid var(--highlight);
+    }
+
+    b {
+      padding: 0.5rem;
+      display: block;
+      font-weight: 600;
+      color: var(--heading);
+    }
+
+    span {
+      padding: 0.5rem;
+      font-weight: 550;
+      color: var(--highlight);
+    }
+  }
+}
