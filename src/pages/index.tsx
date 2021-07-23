@@ -1,4 +1,7 @@
 /* eslint-disable react/button-has-type */
+
+// Link notion desafio
+// https://www.notion.so/Desafio-02-Adicionando-features-ao-blog-d466866c02544c79bbada9717c033d0a
 import { useState } from "react";
 import { GetStaticProps } from "next";
 import Link from "next/link";
@@ -116,7 +119,7 @@ export const getStaticProps: GetStaticProps = async () => {
         "publications.subtitle",
         "publications.author",
       ],
-      pageSize: 1,
+      pageSize: 2,
     }
   );
 

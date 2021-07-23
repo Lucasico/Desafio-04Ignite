@@ -11,6 +11,7 @@ export default function Pagination({
   return (
     <div className={styledGlobal.container}>
       <button
+        type="button"
         style={{ background: "none", border: 0 }}
         onClick={handlePagination}
       >

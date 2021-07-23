@@ -9,12 +9,15 @@ import { RichText } from "prismic-dom";
 import { useRouter } from "next/router";
 import Prismic from "@prismicio/client";
 import Head from "next/head";
+import Link from "next/link";
 import { getPrismicClient } from "../../services/prismic";
 import styledGlobal from "../../styles/common.module.scss";
 import styledLocal from "./post.module.scss";
+import Comments from "../../components/Comments";
 
 interface Post {
   first_publication_date: string | null;
+  last_publication_date: string | null;
   data: {
     title: string;
     banner: {
@@ -32,9 +35,40 @@ interface Post {
 
 interface PostProps {
   post: Post;
+  prevPost: {
+    uid: string;
+    data: {
+      title: string;
+    };
+  }[];
+  afterPost: {
+    uid: string;
+    data: {
+      title: string;
+    };
+  }[];
 }
 
-export default function Post({ post }: PostProps): JSX.Element {
+function formatPostUpdateDate(date: string): string {
+  const datePublicationUpdate = format(new Date(date), "dd MMM yyyy hh:mm", {
+    locale: ptBR,
+  });
+
+  const finalFormmattedDate = `${datePublicationUpdate.substring(
+    0,
+    11
+  )}, às ${datePublicationUpdate.substring(11)}`;
+
+  return finalFormmattedDate;
+}
+// https://www.youtube.com/watch?v=AwYyC6Uh3iI&ab_channel=GBDev
+// paginação de resultados
+// https://prismic.io/docs/technologies/order-your-results-reactjs
+export default function Post({
+  post,
+  prevPost,
+  afterPost,
+}: PostProps): JSX.Element {
   const router = useRouter();
 
   const datePublication = format(
@@ -43,6 +77,10 @@ export default function Post({ post }: PostProps): JSX.Element {
     {
       locale: ptBR,
     }
+  );
+
+  const datePublicationUpdate = formatPostUpdateDate(
+    post.last_publication_date
   );
 
   const totalWords = post.data.content.reduce((total, contentItem) => {
@@ -85,6 +123,9 @@ export default function Post({ post }: PostProps): JSX.Element {
               <span>{readTime} min</span>
             </div>
           </section>
+          <div className={styledLocal.contentLastPublication}>
+            <span>*Editado em {datePublicationUpdate}</span>
+          </div>
 
           {post.data.content.map((poster) => {
             return (
@@ -103,6 +144,25 @@ export default function Post({ post }: PostProps): JSX.Element {
               </div>
             );
           })}
+          <Comments />
+          <div className={styledLocal.ContentPreviousAndNextPost}>
+            {prevPost[0]?.uid && (
+              <Link href={`/post/${prevPost[0].uid}`}>
+                <button type="button">
+                  <b>{prevPost[0].data.title}</b>
+                  <span>Post anterior</span>
+                </button>
+              </Link>
+            )}
+            {afterPost[0]?.uid && (
+              <Link href={`/post/${afterPost[0].uid}`}>
+                <button type="button">
+                  <b>{afterPost[0].data.title}</b>
+                  <span>Próximo Post</span>
+                </button>
+              </Link>
+            )}
+          </div>
         </div>
       </div>
     </>
@@ -133,10 +193,32 @@ export const getStaticPaths: GetStaticPaths = async () => {
 export const getStaticProps: GetStaticProps = async ({ params }) => {
   const { slug } = params;
   const prismic = getPrismicClient();
-  const response = await prismic.getByUID("publications", String(slug), {});
+  const response = await prismic.getByUID("publications", String(slug), {
+    orderings: "[publications.first_publication_date]",
+  });
+
+  const prevPost = await prismic.query(
+    [Prismic.Predicates.at("document.type", "publications")],
+    {
+      pageSize: 1,
+      after: response.id,
+      orderings: "[document.first_publication_date]",
+    }
+  );
+
+  const afterPost = await prismic.query(
+    [Prismic.Predicates.at("document.type", "publications")],
+    {
+      pageSize: 1,
+      after: response.id,
+      orderings: "[document.last_publication_date desc]",
+    }
+  );
+
   const post = {
     uid: response.uid,
     first_publication_date: response.first_publication_date,
+    last_publication_date: response.last_publication_date,
     data: {
       title: response.data.title,
       subtitle: response.data.subtitle,
@@ -156,6 +238,8 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   return {
     props: {
       post,
+      prevPost: prevPost?.results,
+      afterPost: afterPost?.results,
     },
     revalidate: 60 * 60 * 60,
   };
